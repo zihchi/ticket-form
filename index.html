@@ -3,62 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <title>華信職福票 訂購單</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- 使用 xlsx-style 保留 Excel 格式 -->
+  <script src="https://unpkg.com/xlsx-style@0.8.13/dist/xlsx.full.min.js"></script>
+  <style>
+    table { border-collapse: collapse; margin-top: 20px; }
+    td, th { border: 1px solid #aaa; padding: 6px; }
+    input, select { width: 120px; }
+    button { margin: 5px; }
+  </style>
 </head>
 <body>
-  <h2>華信職福票 自動填單</h2>
-  <form id="ticketForm">
-    姓名：<input type="text" id="name"><br><br>
-    身分證字號：<input type="text" id="id"><br><br>
-    手機：<input type="text" id="phone"><br><br>
-    日期：<input type="date" id="date"><br><br>
+  <h2>華信職福票 多筆訂購單</h2>
 
-    起站：
-    <select id="from">
-      <option value="">-- 請選擇 --</option>
-      <option value="台北">台北</option>
-      <option value="板橋">板橋</option>
-      <option value="左營">左營</option>
-      <!-- 之後可自行補充 -->
-    </select><br><br>
+  <table id="inputTable">
+    <thead>
+      <tr>
+        <th>姓名</th>
+        <th>身分證字號</th>
+        <th>手機</th>
+        <th>日期</th>
+        <th>起站</th>
+        <th>訖站</th>
+        <th>班次</th>
+        <th>時間</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="text" class="name"></td>
+        <td><input type="text" class="id"></td>
+        <td><input type="text" class="phone"></td>
+        <td><input type="date" class="date"></td>
+        <td>
+          <select class="from">
+            <option value="">--</option>
+            <option value="台北">台北</option>
+            <option value="板橋">板橋</option>
+            <option value="左營">左營</option>
+          </select>
+        </td>
+        <td>
+          <select class="to">
+            <option value="">--</option>
+            <option value="桃園">桃園</option>
+            <option value="台中">台中</option>
+            <option value="台南">台南</option>
+          </select>
+        </td>
+        <td><input type="text" class="train"></td>
+        <td><input type="time" class="time"></td>
+        <td><button type="button" onclick="deleteRow(this)">刪除</button></td>
+      </tr>
+    </tbody>
+  </table>
 
-    訖站：
-    <select id="to">
-      <option value="">-- 請選擇 --</option>
-      <option value="桃園">桃園</option>
-      <option value="台中">台中</option>
-      <option value="台南">台南</option>
-      <!-- 之後可自行補充 -->
-    </select><br><br>
-
-    班次：<input type="text" id="train"><br><br>
-    時間：<input type="time" id="time"><br><br>
-
-    <button type="button" onclick="generateExcel()">下載 Excel</button>
-  </form>
+  <button type="button" onclick="addRow()">新增一筆</button>
+  <button type="button" onclick="generateExcel()">下載 Excel</button>
 
   <script>
+    // 新增一列輸入
+    function addRow() {
+      const table = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
+      const newRow = table.rows[0].cloneNode(true);
+      newRow.querySelectorAll("input, select").forEach(el => el.value = "");
+      table.appendChild(newRow);
+    }
+
+    // 刪除列
+    function deleteRow(btn) {
+      const row = btn.parentNode.parentNode;
+      const tbody = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
+      if (tbody.rows.length > 1) row.remove();
+    }
+
     async function generateExcel() {
-      // 載入範本（需與 HTML 放在同資料夾）
+      // 載入範本
       const response = await fetch("華信職福票範例.xlsx");
       const arrayBuffer = await response.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: "array" });
-
-      // 取得「空白訂購單」工作表
+      const workbook = XLSX.read(arrayBuffer, { type: "array", cellStyles: true });
       const ws = workbook.Sheets["空白訂購單"];
 
-      // ⚠ 根據範例檔案：資料範例在第3列，所以填寫目標是 row=3
-      ws["A3"].v = document.getElementById("name").value;   // 姓名
-      ws["C3"].v = document.getElementById("id").value;     // 身分證字號
-      ws["D3"].v = document.getElementById("phone").value;  // 手機
-      ws["E3"].v = document.getElementById("date").value;   // 日期
-      ws["F3"].v = document.getElementById("from").value;   // 起站
-      ws["G3"].v = document.getElementById("to").value;     // 訖站
-      ws["H3"].v = document.getElementById("train").value;  // 班次
-      ws["I3"].v = document.getElementById("time").value;   // 時間
+      // 從第 3 列開始填寫
+      const tbody = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
+      for (let i = 0; i < tbody.rows.length; i++) {
+        const row = tbody.rows[i];
+        const r = 3 + i; // Excel 第3列開始
+        ws[`A${r}`].v = row.querySelector(".name").value;   // 姓名
+        ws[`C${r}`].v = row.querySelector(".id").value;     // 身分證字號
+        ws[`D${r}`].v = row.querySelector(".phone").value;  // 手機
+        ws[`E${r}`].v = row.querySelector(".date").value;   // 日期
+        ws[`F${r}`].v = row.querySelector(".from").value;   // 起站
+        ws[`G${r}`].v = row.querySelector(".to").value;     // 訖站
+        ws[`H${r}`].v = row.querySelector(".train").value;  // 班次
+        ws[`I${r}`].v = row.querySelector(".time").value;   // 時間
+      }
 
-      // 匯出新 Excel
-      const newWB = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      // 匯出 Excel
+      const newWB = XLSX.write(workbook, { bookType: "xlsx", type: "array", cellStyles: true });
       const blob = new Blob([newWB], { type: "application/octet-stream" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
