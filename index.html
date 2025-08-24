@@ -48,15 +48,27 @@
     <div class="card">
       <div class="field">
         <label>姓名</label>
-        <input type="text" class="name" placeholder="請輸入姓名">
+        <select class="name">
+          <option value="">請選擇姓名</option>
+          <option value="洪子錡">洪子錡</option>
+          <option value="許毓倫">許毓倫</option>
+        </select>
       </div>
       <div class="field">
-        <label>身分證字號</label>
-        <input type="text" class="id" pattern="[A-Za-z][0-9]{9}" maxlength="10" placeholder="A123456789">
+        <label>身分證字號 / 護照號碼</label>
+        <select class="id">
+          <option value="">請選擇證號</option>
+          <option value="S124176767">S124176767</option>
+          <option value="F228623447">F228623447</option>
+        </select>
       </div>
       <div class="field">
-        <label>手機</label>
-        <input type="tel" class="phone" pattern="[0-9]{10}" maxlength="10" placeholder="09xxxxxxxx">
+        <label>手機號碼</label>
+        <select class="phone">
+          <option value="">請選擇手機號碼</option>
+          <option value="0988226061">0988226061</option>
+          <option value="0908637656">0908637656</option>
+        </select>
       </div>
       <div class="field">
         <label>日期</label>
@@ -148,5 +160,6 @@
   </script>
 </body>
 </html>
+
 
 
