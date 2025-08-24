@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>華信職福票 訂購單</title>
-  <!-- 使用 xlsx-style 保留 Excel 格式 -->
+  <!-- 使用 xlsx-populate 保留格式 -->
   <script src="https://unpkg.com/xlsx-populate/browser/xlsx-populate.min.js"></script>
   <style>
     table { border-collapse: collapse; margin-top: 20px; }
@@ -62,7 +62,7 @@
   <button type="button" onclick="generateExcel()">下載 Excel</button>
 
   <script>
-    // 新增一列輸入
+    // 新增一列
     function addRow() {
       const table = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
       const newRow = table.rows[0].cloneNode(true);
@@ -77,47 +77,40 @@
       if (tbody.rows.length > 1) row.remove();
     }
 
-    // 字串轉 ArrayBuffer（xlsx-style 需要）
-    function s2ab(s) {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-      return buf;
-    }
-
     async function generateExcel() {
-  // 1. 載入 Excel 範本 (必須在 repo 根目錄有 TicketForm.xlsx)
-  const response = await fetch("TicketForm.xlsx");
-  const arrayBuffer = await response.arrayBuffer();
-  const workbook = await XlsxPopulate.fromDataAsync(arrayBuffer);
+      // 1. 載入 Excel 範本
+      const response = await fetch("TicketForm.xlsx");
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = await XlsxPopulate.fromDataAsync(arrayBuffer);
 
-  // 2. 指定要寫的工作表
-  const sheet = workbook.sheet("空白訂購單");
+      // 2. 選擇工作表
+      const sheet = workbook.sheet("空白訂購單");
 
-  // 3. 把表單資料寫到 Excel（從第 4 列開始）
-const tbody = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
-for (let i = 0; i < tbody.rows.length; i++) {
-  const row = tbody.rows[i];
-  const r = 4 + i;  // ⚠️ 改這裡：Excel 第 4 列開始
-  sheet.cell(`A${r}`).value(row.querySelector(".name").value);
-  sheet.cell(`C${r}`).value(row.querySelector(".id").value);
-  sheet.cell(`D${r}`).value(row.querySelector(".phone").value);
-  sheet.cell(`E${r}`).value(row.querySelector(".date").value);
-  sheet.cell(`F${r}`).value(row.querySelector(".from").value);
-  sheet.cell(`G${r}`).value(row.querySelector(".to").value);
-  sheet.cell(`H${r}`).value(row.querySelector(".train").value);
-  sheet.cell(`I${r}`).value(row.querySelector(".time").value);
-}
+      // 3. 只寫入「這裡」欄位 (從第 4 列開始)
+      const tbody = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
+      for (let i = 0; i < tbody.rows.length; i++) {
+        const row = tbody.rows[i];
+        const r = 4 + i; // 第 4 列開始
 
+        sheet.cell(`A${r}`).value(row.querySelector(".name").value);   // 姓名
+        sheet.cell(`C${r}`).value(row.querySelector(".id").value);     // 身分證字號
+        sheet.cell(`D${r}`).value(row.querySelector(".phone").value);  // 手機
+        sheet.cell(`E${r}`).value(row.querySelector(".date").value);   // 日期
+        sheet.cell(`F${r}`).value(row.querySelector(".from").value);   // 起站
+        sheet.cell(`G${r}`).value(row.querySelector(".to").value);     // 訖站
+        sheet.cell(`H${r}`).value(row.querySelector(".train").value);  // 班次
+        sheet.cell(`I${r}`).value(row.querySelector(".time").value);   // 時間
+        // ⚠️ 不改 B、J、K，保持範本原本的「全票 / APP取票 / 收據需求」
+      }
 
-  // 4. 匯出檔案（保留格式）
-  const blob = await workbook.outputAsync();
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "華信職福票.xlsx";
-  link.click();
-}
-
+      // 4. 匯出 Excel
+      const blob = await workbook.outputAsync();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "TicketForm_out.xlsx";
+      link.click();
+    }
   </script>
 </body>
 </html>
+
