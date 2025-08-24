@@ -77,6 +77,14 @@
       if (tbody.rows.length > 1) row.remove();
     }
 
+    // 字串轉 ArrayBuffer（xlsx-style 需要）
+    function s2ab(s) {
+      const buf = new ArrayBuffer(s.length);
+      const view = new Uint8Array(buf);
+      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+      return buf;
+    }
+
     async function generateExcel() {
       // 載入範本
       const response = await fetch("華信職福票範例.xlsx");
@@ -99,9 +107,10 @@
         ws[`I${r}`].v = row.querySelector(".time").value;   // 時間
       }
 
-      // 匯出 Excel
-      const newWB = XLSX.write(workbook, { bookType: "xlsx", type: "array", cellStyles: true });
-      const blob = new Blob([newWB], { type: "application/octet-stream" });
+      // 匯出 Excel（用 binary）
+      const newWB = XLSX.write(workbook, { bookType: "xlsx", type: "binary", cellStyles: true });
+      const blob = new Blob([s2ab(newWB)], { type: "application/octet-stream" });
+
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = "訂購單.xlsx";
