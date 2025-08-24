@@ -37,13 +37,15 @@ label {
 }
 
 input, select {
-  width: 100%;
-  padding: 8px;
-  font-size: 14px;
+  width: 90%;         /* 不要全滿，留一點左右空間 */
+  max-width: 300px;   /* iPhone 螢幕上看起來剛好，不會太長 */
+  padding: 6px 8px;
+  font-size: 15px;    /* 手機螢幕清晰 */
   border: 1px solid #ccc;
   border-radius: 5px;
   box-sizing: border-box;
-  background: #fafafa;
+  display: block;     /* 每一個輸入框獨佔一行 */
+  margin: 0 auto;     /* 🔑 置中，看起來整齊 */
 }
 
 button {
