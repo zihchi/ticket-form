@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>華信職福票 訂購單</title>
   <!-- 使用 xlsx-style 保留 Excel 格式 -->
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/xlsx-populate/browser/xlsx-populate.min.js"></script>
   <style>
     table { border-collapse: collapse; margin-top: 20px; }
     td, th { border: 1px solid #aaa; padding: 6px; }
@@ -86,36 +86,37 @@
     }
 
     async function generateExcel() {
-      // 載入範本
-      const response = await fetch("TicketForm.xlsx");
-      const arrayBuffer = await response.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: "array", cellStyles: true });
-      const ws = workbook.Sheets["空白訂購單"];
+  // 1. 載入 Excel 範本 (必須在 repo 根目錄有 TicketForm.xlsx)
+  const response = await fetch("TicketForm.xlsx");
+  const arrayBuffer = await response.arrayBuffer();
+  const workbook = await XlsxPopulate.fromDataAsync(arrayBuffer);
 
-      // 從第 3 列開始填寫
-      const tbody = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
-      for (let i = 0; i < tbody.rows.length; i++) {
-        const row = tbody.rows[i];
-        const r = 3 + i; // Excel 第3列開始
-        ws[`A${r}`].v = row.querySelector(".name").value;   // 姓名
-        ws[`C${r}`].v = row.querySelector(".id").value;     // 身分證字號
-        ws[`D${r}`].v = row.querySelector(".phone").value;  // 手機
-        ws[`E${r}`].v = row.querySelector(".date").value;   // 日期
-        ws[`F${r}`].v = row.querySelector(".from").value;   // 起站
-        ws[`G${r}`].v = row.querySelector(".to").value;     // 訖站
-        ws[`H${r}`].v = row.querySelector(".train").value;  // 班次
-        ws[`I${r}`].v = row.querySelector(".time").value;   // 時間
-      }
+  // 2. 指定要寫的工作表
+  const sheet = workbook.sheet("空白訂購單");
 
-      // 匯出 Excel（用 binary）
-      const newWB = XLSX.write(workbook, { bookType: "xlsx", type: "binary", cellStyles: true });
-      const blob = new Blob([s2ab(newWB)], { type: "application/octet-stream" });
+  // 3. 把表單資料寫到 Excel（從第 3 列開始）
+  const tbody = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
+  for (let i = 0; i < tbody.rows.length; i++) {
+    const row = tbody.rows[i];
+    const r = 3 + i;  // Excel 第 3 列開始
+    sheet.cell(`A${r}`).value(row.querySelector(".name").value);
+    sheet.cell(`C${r}`).value(row.querySelector(".id").value);
+    sheet.cell(`D${r}`).value(row.querySelector(".phone").value);
+    sheet.cell(`E${r}`).value(row.querySelector(".date").value);
+    sheet.cell(`F${r}`).value(row.querySelector(".from").value);
+    sheet.cell(`G${r}`).value(row.querySelector(".to").value);
+    sheet.cell(`H${r}`).value(row.querySelector(".train").value);
+    sheet.cell(`I${r}`).value(row.querySelector(".time").value);
+  }
 
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "華信職福票.xlsx";
-      link.click();
-    }
+  // 4. 匯出檔案（保留格式）
+  const blob = await workbook.outputAsync();
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "華信職福票.xlsx";
+  link.click();
+}
+
   </script>
 </body>
 </html>
