@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>華信職福票 訂購單</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+  <h2>華信職福票 自動填單</h2>
+  <form id="ticketForm">
+    姓名：<input type="text" id="name"><br><br>
+    身分證字號：<input type="text" id="id"><br><br>
+    手機：<input type="text" id="phone"><br><br>
+    日期：<input type="date" id="date"><br><br>
+
+    起站：
+    <select id="from">
+      <option value="">-- 請選擇 --</option>
+      <option value="台北">台北</option>
+      <option value="板橋">板橋</option>
+      <option value="左營">左營</option>
+      <!-- 之後可自行補充 -->
+    </select><br><br>
+
+    訖站：
+    <select id="to">
+      <option value="">-- 請選擇 --</option>
+      <option value="桃園">桃園</option>
+      <option value="台中">台中</option>
+      <option value="台南">台南</option>
+      <!-- 之後可自行補充 -->
+    </select><br><br>
+
+    班次：<input type="text" id="train"><br><br>
+    時間：<input type="time" id="time"><br><br>
+
+    <button type="button" onclick="generateExcel()">下載 Excel</button>
+  </form>
+
+  <script>
+    async function generateExcel() {
+      // 載入範本（需與 HTML 放在同資料夾）
+      const response = await fetch("華信職福票範例.xlsx");
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+
+      // 取得「空白訂購單」工作表
+      const ws = workbook.Sheets["空白訂購單"];
+
+      // ⚠ 根據範例檔案：資料範例在第3列，所以填寫目標是 row=3
+      ws["A3"].v = document.getElementById("name").value;   // 姓名
+      ws["C3"].v = document.getElementById("id").value;     // 身分證字號
+      ws["D3"].v = document.getElementById("phone").value;  // 手機
+      ws["E3"].v = document.getElementById("date").value;   // 日期
+      ws["F3"].v = document.getElementById("from").value;   // 起站
+      ws["G3"].v = document.getElementById("to").value;     // 訖站
+      ws["H3"].v = document.getElementById("train").value;  // 班次
+      ws["I3"].v = document.getElementById("time").value;   // 時間
+
+      // 匯出新 Excel
+      const newWB = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([newWB], { type: "application/octet-stream" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "訂購單.xlsx";
+      link.click();
+    }
+  </script>
+</body>
+</html>
