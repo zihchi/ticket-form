@@ -87,7 +87,7 @@
 
     async function generateExcel() {
       // 載入範本
-      const response = await fetch("華信職福票範例.xlsx");
+      const response = await fetch("TicketForm.xlsx");
       const arrayBuffer = await response.arrayBuffer();
       const workbook = XLSX.read(arrayBuffer, { type: "array", cellStyles: true });
       const ws = workbook.Sheets["空白訂購單"];
@@ -113,7 +113,7 @@
 
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "訂購單.xlsx";
+      link.download = "華信職福票.xlsx";
       link.click();
     }
   </script>
