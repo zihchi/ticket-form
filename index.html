@@ -94,20 +94,21 @@
   // 2. 指定要寫的工作表
   const sheet = workbook.sheet("空白訂購單");
 
-  // 3. 把表單資料寫到 Excel（從第 3 列開始）
-  const tbody = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
-  for (let i = 0; i < tbody.rows.length; i++) {
-    const row = tbody.rows[i];
-    const r = 3 + i;  // Excel 第 3 列開始
-    sheet.cell(`A${r}`).value(row.querySelector(".name").value);
-    sheet.cell(`C${r}`).value(row.querySelector(".id").value);
-    sheet.cell(`D${r}`).value(row.querySelector(".phone").value);
-    sheet.cell(`E${r}`).value(row.querySelector(".date").value);
-    sheet.cell(`F${r}`).value(row.querySelector(".from").value);
-    sheet.cell(`G${r}`).value(row.querySelector(".to").value);
-    sheet.cell(`H${r}`).value(row.querySelector(".train").value);
-    sheet.cell(`I${r}`).value(row.querySelector(".time").value);
-  }
+  // 3. 把表單資料寫到 Excel（從第 4 列開始）
+const tbody = document.getElementById("inputTable").getElementsByTagName("tbody")[0];
+for (let i = 0; i < tbody.rows.length; i++) {
+  const row = tbody.rows[i];
+  const r = 4 + i;  // ⚠️ 改這裡：Excel 第 4 列開始
+  sheet.cell(`A${r}`).value(row.querySelector(".name").value);
+  sheet.cell(`C${r}`).value(row.querySelector(".id").value);
+  sheet.cell(`D${r}`).value(row.querySelector(".phone").value);
+  sheet.cell(`E${r}`).value(row.querySelector(".date").value);
+  sheet.cell(`F${r}`).value(row.querySelector(".from").value);
+  sheet.cell(`G${r}`).value(row.querySelector(".to").value);
+  sheet.cell(`H${r}`).value(row.querySelector(".train").value);
+  sheet.cell(`I${r}`).value(row.querySelector(".time").value);
+}
+
 
   // 4. 匯出檔案（保留格式）
   const blob = await workbook.outputAsync();
