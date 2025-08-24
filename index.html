@@ -6,10 +6,42 @@
   <!-- 使用 xlsx-populate 保留格式 -->
   <script src="https://unpkg.com/xlsx-populate/browser/xlsx-populate.min.js"></script>
   <style>
-    table { border-collapse: collapse; margin-top: 20px; }
-    td, th { border: 1px solid #aaa; padding: 6px; }
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+    td, th { border: 1px solid #aaa; padding: 6px; text-align: left; }
     input, select { width: 120px; }
     button { margin: 5px; }
+
+    /* iPhone 手機版：改成直向排列 */
+    @media (max-width: 768px) {
+      table, thead, tbody, tr, th, td {
+        display: block;
+        width: 100%;
+      }
+
+      thead { display: none; } /* 隱藏表頭 */
+
+      tr { margin-bottom: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 8px; }
+
+      td {
+        border: none;
+        padding: 8px 0;
+      }
+
+      td::before {
+        content: attr(data-label);  /* 自動加上表頭名稱 */
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+      }
+
+      input, select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        font-size: 16px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -31,29 +63,35 @@
     </thead>
     <tbody>
       <tr>
-        <td><input type="text" class="name"></td>
-        <td><input type="text" class="id"></td>
-        <td><input type="text" class="phone"></td>
-        <td><input type="date" class="date"></td>
-        <td>
+        <td data-label="姓名"><input type="text" class="name" placeholder="請輸入姓名"></td>
+        <td data-label="身分證字號"><input type="text" class="id" pattern="[A-Za-z][0-9]{9}" maxlength="10" placeholder="A123456789"></td>
+        <td data-label="手機"><input type="tel" class="phone" pattern="[0-9]{10}" maxlength="10" placeholder="09xxxxxxxx"></td>
+        <td data-label="日期"><input type="date" class="date"></td>
+        <td data-label="起站">
           <select class="from">
-            <option value="">--</option>
+            <option value="">選擇起站</option>
             <option value="台北">台北</option>
-            <option value="板橋">板橋</option>
+            <option value="桃園">桃園</option>
+            <option value="新竹">新竹</option>
+            <option value="台中">台中</option>
+            <option value="台南">台南</option>
             <option value="左營">左營</option>
           </select>
         </td>
-        <td>
+        <td data-label="訖站">
           <select class="to">
-            <option value="">--</option>
+            <option value="">選擇訖站</option>
+            <option value="台北">台北</option>
             <option value="桃園">桃園</option>
+            <option value="新竹">新竹</option>
             <option value="台中">台中</option>
             <option value="台南">台南</option>
+            <option value="左營">左營</option>
           </select>
         </td>
-        <td><input type="text" class="train"></td>
-        <td><input type="time" class="time"></td>
-        <td><button type="button" onclick="deleteRow(this)">刪除</button></td>
+        <td data-label="班次"><input type="number" class="train" inputmode="numeric" placeholder="班次號碼"></td>
+        <td data-label="時間"><input type="time" class="time"></td>
+        <td data-label="操作"><button type="button" onclick="deleteRow(this)">刪除</button></td>
       </tr>
     </tbody>
   </table>
